@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>回答用紙メーカー | トリテン</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.2.8/svg.min.js" integrity="sha512-RTCg7IYcfrgDIk+0xaABXSTdDL1BJ+0QWFmIJYl5b6r4GoLT6U4lFAIZVTbCDga8fTOgIhQBQ6sY+WTrgCllqA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/js/uikit-icons.min.js"></script>
+</head>
+<body>
+  
+  <div class="onehundred-vh-area">
+
+  <div class="main" id="main">
+    <input type="file" style="display: none;" id="file" @change="onChangeFile" accept=".json">
+    <div class="header">
+      <div class="title">
+        トリテン解答用紙メーカー
+      </div>
+      <div class="buttons">
+        <div class="uk-button uk-button-default" @click="save">ファイルに保存</div>
+        <div class="uk-button uk-button-default" @click="load">ファイルから読み込み</div>
+        <div class="uk-button uk-button-primary" @click="make">書き出し</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="container-child flex-col">
+
+        <!-- 大まかエディター -->
+
+        <div class="sum">
+          <div class="sum-text">現在の合計点:</div>
+          <div class="sum-point">{{getSum()}}点</div>
+        </div>
+
+        <div class="sections scroll">
+          <div v-for="(sec, i) in q" class="section">
+            <div class="sec-header">
+              <div class="sec-header-title">
+                <div class="sec-header-title-text">
+                  <div>大問</div>
+                  <input type="number" v-model="sec.title" class="inline-number-input" />
+                </div>
+                <div class="sec-header-buttons">
+                  <label v-if="i!=0"><input class="uk-checkbox" type="checkbox" v-model="sec.nextline"> 次の列へ</label>
+                  <div class="uk-button uk-button-danger" @click="() => deleteLarge(i)">削除</div>
+                </div>
+              </div>
+            </div>
+            <div class="questions">
+              <div v-for="(que) in getSmallQuestions(sec)" class="que-wrapper">
+                <div class="que-main">
+                  <div @click="() => selectSmall(que)" :class="'que'+(que===s?' que-active':'')">
+                    <div>({{que.q}})</div>
+                    <div v-if="que.children.length == 0">{{scale2jp(que)}}</div>
+                    <div v-if="que.children.length == 0 && que.point > 0">{{que.point}}点</div>
+                    <div v-if="que.children.length == 0 && (que.start || que.end)">{{que.start}}　〜　{{que.end}}</div>
+                  </div>
+                  <div class="uk-button uk-button-primary" @click="() => addChild(sec, que)">ミニ追加</div>
+                  <div class="uk-button uk-button-danger" @click="() => deleteSmall(i, que.id)">削除</div>
+                </div>
+                <div class="que-children">
+                  <div class="que-wrapper" v-for="(chi) of que.children">
+                    <div class="que-main">
+                      <div @click="() => selectSmallById(i, chi.id)" :class="'que'+(chi===s?' que-active':'')">
+                        <div>{{chi.q}}</div>
+                        <div>{{scale2jp(chi)}}</div>
+                        <div v-if="chi.point > 0">{{chi.point}}点</div>
+                        <div v-if="chi.start || chi.end">{{chi.start}}　〜　{{chi.end}}</div>
+                      </div>
+                      <div class="uk-button uk-button-danger" @click="() => deleteSmall(i, chi.id)">削除</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-button uk-button-default" @click="() => addSmall(sec)">小問追加</div>
+          </div>
+        </div>
+
+        <div class="container-button-area">
+          <div class="uk-button uk-button-primary" @click="addLarge">大問追加</div>
+        </div>
+
+      </div>
+      <div class="container-rule"><div class="container-rule-line"></div></div>
+      <div class="container-child flex-col">
+
+        <div class="tab-area">
+          <div :class="'uk-button uk-button-'+(tab==0?'primary':'default')" @click="()=>tab=0">編集</div>
+          <div :class="'uk-button uk-button-'+(tab==1?'primary':'default')" @click="()=>tab=1">プレビュー</div>
+          <div :class="'uk-button uk-button-'+(tab==2?'primary':'default')" @click="()=>tab=2">試験設定</div>
+        </div>
+
+        <div v-if="tab==0" class="scroll">
+          <!-- 詳細エディター -->
+
+          <div v-if="s != null">
+            <div class="edi-area">
+              <div class="edi-label">小問番号</div>
+              <input class="edi-input uk-input" v-model="s.q" />
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0">
+              <div class="edi-label">解答欄サイズ</div>
+              <div uk-form-custom="target: button > span">
+                <select v-model="s.scale">
+                    <option value="l">大きい</option>
+                    <option value="m" selected>中くらい</option>
+                    <option value="s">小さい</option>
+                    <option value="k">記述</option>
+                </select>
+                <button type="button" class="uk-button uk-button-default"><span></span></button>
+              </div>
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0 && s.scale == 'k'">
+              <div class="edi-label">記述行数</div>
+              <input class="edi-input uk-input" v-model="s.k_lines" type="number" />
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0">
+              <div class="edi-label">配点</div>
+              <input class="edi-input uk-input" type="number" v-model="s.point" />
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0">
+              <div class="edi-label">正解</div>
+              <input class="edi-input uk-input" v-model="s.answer" />
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0">
+              <div class="edi-label">採点時の注意（採点基準など）</div>
+              <textarea class="edi-input uk-input" v-model="s.scoring_desc"></textarea>
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0">
+              <div class="edi-label">解答欄左の文字</div>
+              <input class="edi-input uk-input" v-model="s.start" />
+            </div>
+            <div class="edi-area" v-if="s.children.length == 0">
+              <div class="edi-label">解答欄右の文字</div>
+              <input class="edi-input uk-input" v-model="s.end" />
+            </div>
+          </div>
+          <div v-else>
+            小問を選択してください
+          </div>
+
+
+        </div>
+        <div v-html="getSVG()" class="scroll scroll-x" v-if="tab==1"></div>
+        <div v-if="tab==2" class="scroll">
+          <!-- 試験設定ー -->
+
+          <div class="edi-area">
+            <div class="edi-label">タイトル</div>
+            <input class="edi-input uk-input" v-model="e.title" />
+          </div>
+          <div class="edi-area" v-if="e.title?.length > 0">
+            <div class="edi-label">タイトル文字サイズ</div>
+            <input class="edi-input uk-input" type="number" v-model="e.title_font_size" />
+          </div>
+          <div class="edi-area">
+            <label><input class="uk-checkbox" type="checkbox" v-model="e.name">名前欄</label>
+          </div>
+          <div class="edi-area">
+            <label><input class="uk-checkbox" type="checkbox" v-model="e.point">点数欄</label>
+          </div>
+          <div class="edi-area" v-if="e.point">
+            <label><input class="uk-checkbox" type="checkbox" v-model="e.show_max_point">点数欄に最大得点</label>
+          </div>
+
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+  
+  </div>
+
+
+  <img id="res" />
+
+  <script src="convert.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

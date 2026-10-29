@@ -1,0 +1,167 @@
+:root {
+  --normal-bg: #fff4d9;
+  --hover-bg: #ffe9b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body, html, .onehundred-vh-area {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+}
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+}
+.sum {
+  display: flex;
+  gap: 0.5rem;
+}
+.title {
+  color: #000;
+}
+.main {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  gap: 1rem;
+}
+.container-rule {
+  width: 2px;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+}
+.container-rule-line {
+  width: 100%;
+  height: 90%;
+  background-color: black;
+}
+.container-child {
+  flex: 1;
+  padding: 20px;
+  min-width: 0;
+}
+.container-button-area {
+  text-align: center;
+}
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.sec-header {
+  border-bottom: 2px solid #aaa;
+}
+.sec-header-title {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  padding-bottom: 2px;
+}
+.sec-header-title-text {
+  display: flex;
+  gap: .25rem;
+}
+.sec-header-title-text div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.sec-header-title .inline-number-input{
+  flex: 1;
+}
+.sec-header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+.sec-header-buttons label {
+  user-select: none;
+  cursor: pointer;
+}
+.inline-number-input {
+  max-width: 3em;
+  border: none;
+  border-bottom: 2px solid;
+  font-size: 1em;
+  text-align: center;
+}
+.inline-number-input:focus {
+  outline: none;
+}
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+}
+.que-wrapper {
+  padding: 0.1125rem 0;
+}
+.que-main {
+  display: flex;
+  gap: 0.5rem;
+}
+.que {
+  flex: 1;
+  padding: 0.125rem 0.25rem;
+  display: flex;
+  transition: background .25s;
+  cursor: pointer;
+  border-radius: 3px;
+  gap: 0.75rem;
+}
+.que:hover {
+  background: var(--hover-bg);
+}
+.que-active {
+  background: var(--hover-bg);
+  box-shadow: 0 0 5px 2px #0000002d;
+}
+.edi-area {
+  margin-bottom: 1rem;
+}
+.que-children {
+  padding-left: 2rem;
+}
+.scroll {
+  overflow-y: scroll;
+  min-height: 0;
+  flex: 1;
+}
+.scroll-x {
+  overflow-x: scroll;
+  width: 100%;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+svg {
+  width: attr(width) !important;
+  max-width: none !important;
+  height: auto !important;
+}
