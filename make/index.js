@@ -21,7 +21,8 @@ const app = Vue.createApp({
       s: null,
       // exam 設定
       e: structuredClone(DEFAULT_EXAM_SETTING),
-      tab: 0
+      tab: 0,
+      lastCells: undefined
     }
   },
   methods: {
@@ -101,9 +102,9 @@ const app = Vue.createApp({
       // window.open("data:image/svg+xml;charset=utf-8;base64,"+btoa(unescape(encodeURIComponent(svg))))
       convert2png(svg.svg(), w, h).then(e => {
         document.getElementById("res").src = e;
-        alert("したのほうにあります");
+        alert("下のほうにあります");
       });
-      console.log(cells);
+     this.lastCells = cells;
     },
     getConfig4Convert() {
       return {
@@ -154,7 +155,7 @@ const app = Vue.createApp({
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = (this.e.title == "" ? "回答用紙" : this.e.title)+".score-bird.json";
+      a.download = (this.e.title == "" ? "解答用紙" : this.e.title)+".score-bird.json";
       a.click();
 
       setTimeout(() => {
@@ -185,6 +186,18 @@ const app = Vue.createApp({
     },
     getSum() {
       return this.q.map(e => e.items).flat().map(e => isNaN(e.point) ? 0 : Number(e.point)).reduce((prev, curr) => prev + curr, 0);
+    },
+    downloadFile4Scoring() {
+      if (!this.lastCells) return;
+
+      const file = new Blob([JSON.stringify(this.lastCells)], {type: "application/json"});
+
+      const url = URL.createObjectURL(file);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = (this.e.title == "" ? "解答用紙" : this.e.title)+"_採点用ファイル.scoring.score-bird.json";
+      a.click();
     }
   }
 }).mount("#main");
