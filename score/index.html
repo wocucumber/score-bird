@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>トリテン</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/3.2.8/svg.min.js" integrity="sha512-RTCg7IYcfrgDIk+0xaABXSTdDL1BJ+0QWFmIJYl5b6r4GoLT6U4lFAIZVTbCDga8fTOgIhQBQ6sY+WTrgCllqA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- UIkit CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/css/uikit.min.css" />
+
+  <!-- UIkit JS -->
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/js/uikit-icons.min.js"></script>
+</head>
+<body>
+
+  <div id="main">
+    <div v-if="page==0">
+      <h1>採点コーナーへようこそ</h1>
+      <h3>まず、流れを確認</h3>
+      <ol>
+        <li><a target="_blank" href="../make/">トリテン解答用紙メーカー</a>から解答用紙をつくる。</li>
+        <li>解答用紙と採点用ファイルをダウンロードする。<br><strong>※ダウンロードしたファイルは変更しないでください。</strong></li>
+        <li><strong>デジタル上で</strong>解答用紙に<strong>模範解答</strong>を記入する。<br>ーーーーーここからこのページーーーーーー</li>
+        <li><strong>デジタル上で</strong>解答用紙に<strong>解答者が解答</strong>を記入する。</li>
+        <li>模範解答と解答済みの解答用紙をアップロードする。</li>
+        <li>採点する。</li>
+        <li>結果をダウンロードする。</li>
+      </ol>
+      <button @click="()=>changePage(1)">はじめる</button>
+    </div>
+    <div v-if="page==1">
+      <h1>ファイルを選択</h1>
+      
+    </div>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+</html>
