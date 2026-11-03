@@ -13,6 +13,9 @@
   <!-- UIkit JS -->
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.28/dist/js/uikit-icons.min.js"></script>
+
+  <!-- PDF-LIB -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.4.0/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 
@@ -23,20 +26,108 @@
       <ol>
         <li><a target="_blank" href="../make/">トリテン解答用紙メーカー</a>から解答用紙をつくる。</li>
         <li>解答用紙と採点用ファイルをダウンロードする。<br><strong>※ダウンロードしたファイルは変更しないでください。</strong></li>
-        <li><strong>デジタル上で</strong>解答用紙に<strong>模範解答</strong>を記入する。<br>ーーーーーここからこのページーーーーーー</li>
-        <li><strong>デジタル上で</strong>解答用紙に<strong>解答者が解答</strong>を記入する。</li>
+        <li><strong>デジタル上で</strong>解答用紙に<strong>模範解答</strong>を記入する。</li>
+        <li><strong>デジタル上で</strong>解答用紙に<strong>解答者が解答</strong>を記入する。<br>ーーーーーここからこのページーーーーーー</li>
         <li>模範解答と解答済みの解答用紙をアップロードする。</li>
         <li>採点する。</li>
         <li>結果をダウンロードする。</li>
       </ol>
-      <button @click="()=>changePage(1)">はじめる</button>
+      <button @click="()=>changePage(1)" class="uk-button uk-button-default">はじめる</button>
     </div>
     <div v-if="page==1">
-      <h1>ファイルを選択</h1>
+      <h1>ファイルを選択する</h1>
+      <div class="file-area">
+        模範解答
+        <input type="file" @change="p01_modelAnswer" accept="image/*" class="uk-input">
+      </div>
+      <div class="file-area">
+        解答者の解答 <strong>※すべて選択してください</strong> <strong>※ファイル名から誰の解答かわかるようにしてください</strong>
+        <input type="file" @change="p01_examineesAnswer" accept="image/*" multiple class="uk-input">
+      </div>
+      <div class="file-area">
+        採点用ファイル
+        <input type="file" @change="p01_cellsFile" accept="application/json" class="uk-input">
+      </div>
+
       
+      <button @click="p01_next" class="uk-button uk-button-default" v-if="p01_filesState.every(Boolean)">次へ</button>
+    </div>
+    <div v-if="page==2">
+      <h1>処理中</h1>
+      <h3>しばらくお待ちください</h3>
+    </div>
+    <div v-if="page==3">
+      <h1>採点する</h1>
+      <div class="scoring-area">
+        <div class="scoring-header">
+          <div class="scoring-header-item">
+            <div class="scoring-q-move-btn" @click="()=>changeQuestion(qd.i-1)" v-if="questionIndex!=0">&lt;</div>
+            <div class="scoring-q-name">
+              {{qd.name}}
+            </div>
+            <div class="scoring-q-move-btn" @click="()=>changeQuestion(qd.i+1)" v-if="questionIndex+1!=qd.answersCount">&gt;</div>
+            <div class="scoring-q-point-area">
+              <div class="scoring-q-point-text">配点:</div>
+              <div class="scoring-q-point">{{qd.point}}</div>
+              <!-- <div class="scoring-q-point-text">点</div> -->
+            </div>
+          </div>
+          <div class="scoring-header-item">
+            <div class="scoring-header-button" @click="finishScoring">採点を終わる</div>
+          </div>
+        </div>
+        <div class="scoring-body">
+          <div class="scoring-model-area">
+            <div class="scoring-answer">
+              <div class="scoring-answer-label">模範解答</div>
+              <div class="scoring-answer-canvas" v-append-child="qd.model"></div>
+            </div>
+          </div>
+          <div class="scoring-students-area">
+            <div v-for="(s, i) in qd.students">
+              <div :class="'scoring-answer scoring-answer-'+point2mark(si[i].point)">
+                <div class="scoring-answer-label">{{si[i].label}}</div>
+                <div class="scoring-answer-canvas" v-append-child="s"></div>
+                <div class="scoring-answer-buttons">
+                  <div :class="'uk-button uk-button-'+(si[i].point==qd.point?'primary':'default')" @click="setPoint(i, 'o')">◯</div>
+                  <div :class="'uk-button uk-button-'+(si[i].point>0&&si[i].point<qd.point?'primary':'default')" @click="setPoint(i, 'h')">▲{{si[i].point>0&&qd.point>si[i].point ? ": "+si[i].point+"点" : ""}}</div>
+                  <div :class="'uk-button uk-button-'+(si[i].point==0?'primary':'default')" @click="setPoint(i, 'x')">×</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="page==4">
+      <h1>採点状況</h1>
+      <div class="uk-button uk-primary" @click="()=>gotoScoring()">採点にもどる</div>
+      <div class="uk-button uk-primary" @click="exportAsPDF">PDFファイルとして出力</div>
+      <div class="p04_sum-rate-area">
+        <div class="p04_sum-rate-text">全体</div>
+        <div class="p04_sum-rate-rate">{{Math.floor(std.sum*100)}}</div>
+        <div class="p04_sum-rate-text">%</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <td>設問</td>
+            <td>採点完了率</td>
+            <td>採点する</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(r, i) in std.questions">
+            <td>{{r[0]}}</td>
+            <td>{{Math.floor(r[1]*100)}}%</td>
+            <td><div class="uk-button uk-button-default" @click="()=>gotoScoring(i)">採点</div></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
+  <script src="scoring.js"></script>
   <script src="index.js"></script>
 </body>
 </html>

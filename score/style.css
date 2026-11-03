@@ -3,3 +3,99 @@
   margin: auto;
   padding: 20px 10px;
 }
+.scoring-header {
+  background-color: #f3f3f3;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem;
+}
+.scoring-header-item {
+  display: flex;
+}
+.scoring-q-move-btn {
+  cursor: pointer;
+  width: 1.1rem;
+  line-height: 1;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 2px solid #000;
+  text-align: center;
+  transition: background-color .2s;
+  user-select: none;
+}
+.scoring-q-move-btn:hover {
+  background-color: gainsboro;
+}
+.scoring-q-name {
+  font-size: large;
+}
+.scoring-q-point-area {
+  display: flex;
+}
+.scoring-q-point-text {
+  font-size: small;
+}
+.scoring-q-point {
+  font-size: large;
+}
+.scoring-header-button {
+  border-left: 1px solid gray;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  padding-inline: 0.5rem;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+.scoring-header-button:hover {
+  background-color: gainsboro;
+}
+.scoring-body {
+  padding-block: 1rem;
+}
+.scoring-model-area {
+  text-align: center;
+}
+.scoring-students-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.scoring-answer {
+  width: 150px;
+  padding: 5px;
+  border: 1px solid #cecece;
+  border-radius: 10px;
+  transition: background-color .2s;
+}
+.scoring-answer-o {
+  background-color: #c5ffbc;
+}
+.scoring-answer-x {
+  background-color: #ffbcbc;
+}
+.scoring-answer-h {
+  background-color: #fff7bc;
+}
+.scoring-answer-label {
+  border-bottom: 2px solid;
+}
+.scoring-answer-canvas {
+  padding: 5px;
+  margin: auto;
+  width: 100px;
+}
+.scoring-answer-canvas canvas {
+  width: 100%;
+}
+.scoring-answer-buttons {
+  text-align: center;
+}
+.scoring-answer-buttons div {
+  width: 3rem;
+  padding: 0;
+  user-select: none;
+}
+.scoring-answer-buttons div:not(.uk-button-primary) {
+  background: white;
+}

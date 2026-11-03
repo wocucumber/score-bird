@@ -105,8 +105,8 @@ function rect(svg, location, size, text, fontSize, start, end) {
   }
 
   return {
-    registerCell(name, moves) {
-      cells.answers.push([name, location.map((e, i) => e + moves[i]), location.map((e, i) => e + size[i] + moves[i])]);
+    registerCell(name, moves, point) {
+      cells.answers.push([name, location.map((e, i) => e + moves[i]), location.map((_, i) => size[i]), point]);
     }
   };
 }
@@ -177,7 +177,7 @@ function convert(sections, option) {
             // ①みたいな
             rect(r, [baseX + SIZES.small, baseY + y], [SIZES.inside, SIZES.height * num], child.q, FONTSIZES.inside);
             // 解答枠
-            rect(r, [baseX + SIZES.small + SIZES.inside, baseY + y], [getWidthFromParam(child.param), SIZES.height * num], undefined, undefined, child.start, child.end).registerCell("["+sec.title+"]("+q.q+")"+child.q, moves);
+            rect(r, [baseX + SIZES.small + SIZES.inside, baseY + y], [getWidthFromParam(child.param), SIZES.height * num], undefined, undefined, child.start, child.end).registerCell("["+sec.title+"]("+q.q+")"+child.q, moves, child.point);
             for (let i = 0; i < num - 1; i ++) {
               // 点線
               r.line([baseX + SIZES.small + SIZES.inside, baseY + y + (i + 1) * SIZES.height, baseX + SIZES.small + SIZES.inside + getWidthFromParam(child.param), baseY + y + (i + 1) * SIZES.height]).fill(FILL_COLOR).stroke({
@@ -188,7 +188,7 @@ function convert(sections, option) {
             y += SIZES.height * num;
           } else {
             rect(r, [baseX + SIZES.small, baseY + y], [SIZES.inside, SIZES.height], child.q, FONTSIZES.inside);
-            rect(r, [baseX + SIZES.small + SIZES.inside, baseY + y], [getWidthFromParam(child.param), SIZES.height], undefined, undefined, child.start, child.end).registerCell("["+sec.title+"]("+q.q+")"+child.q, moves);
+            rect(r, [baseX + SIZES.small + SIZES.inside, baseY + y], [getWidthFromParam(child.param), SIZES.height], undefined, undefined, child.start, child.end).registerCell("["+sec.title+"]("+q.q+")"+child.q, moves, child.point);
             y += SIZES.height;
           }
         }
@@ -199,7 +199,7 @@ function convert(sections, option) {
           // (1)みたいな
           rect(r, [baseX, baseY + y], [SIZES.small, SIZES.height * num], "("+q.q+")", FONTSIZES.small);
           // 解答枠
-          rect(r, [baseX + SIZES.small, baseY + y], [getWidthFromParam(q.param), SIZES.height * num], undefined, undefined, q.start, q.end).registerCell("["+sec.title+"]("+q.q+")", moves);
+          rect(r, [baseX + SIZES.small, baseY + y], [getWidthFromParam(q.param), SIZES.height * num], undefined, undefined, q.start, q.end).registerCell("["+sec.title+"]("+q.q+")", moves, q.point);
           for (let i = 0; i < num - 1; i ++) {
             // 点線
             r.line([baseX + SIZES.small, baseY + y + (i + 1) * SIZES.height, baseX + SIZES.small + getWidthFromParam(q.param), baseY + y + (i + 1) * SIZES.height]).fill(FILL_COLOR).stroke({
@@ -210,7 +210,7 @@ function convert(sections, option) {
           y += SIZES.height * num;
         } else {
           rect(r, [baseX, baseY + y], [SIZES.small, SIZES.height], "("+q.q+")", FONTSIZES.small);
-          rect(r, [baseX + SIZES.small, baseY + y], [getWidthFromParam(q.param), SIZES.height], undefined, undefined, q.start, q.end).registerCell("["+sec.title+"]("+q.q+")", moves);
+          rect(r, [baseX + SIZES.small, baseY + y], [getWidthFromParam(q.param), SIZES.height], undefined, undefined, q.start, q.end).registerCell("["+sec.title+"]("+q.q+")", moves, q.point);
           y += SIZES.height;
         }
       }
@@ -270,8 +270,8 @@ function convert(sections, option) {
       [zurashiX - POINT_BOX.width - POINT_BOX.offset_x,
         maxYSum + FOOTER.height - POINT_BOX.height - POINT_BOX.offset_y
       ],
-      [(zurashiX - POINT_BOX.width - POINT_BOX.offset_x) + POINT_BOX.width,
-        (maxYSum + FOOTER.height - POINT_BOX.height - POINT_BOX.offset_y) + POINT_BOX.height
+      [POINT_BOX.width,
+       POINT_BOX.height
       ]
     ];
   }
@@ -292,7 +292,8 @@ function convert(sections, option) {
   result.height(maxYSum);
   result.width(zurashiX);
 
-  cells.size = [zurashiX, zurashiX];
+  cells.size = [zurashiX, maxYSum];
+  cells.normalH = SIZES.height;
 
   return [result, maxYSum, zurashiX, cells];
 }
