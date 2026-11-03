@@ -70,7 +70,7 @@
                 <div class="que-children">
                   <div class="que-wrapper" v-for="(chi) of que.children">
                     <div class="que-main">
-                      <div @click="() => selectSmallById(i, chi.id)" :class="'que'+(chi===s?' que-active':'')">
+                      <div @click="() => selectSmallById(i, chi.id)" :class="'que'+(chi==s?' que-active':'')">
                         <div>{{chi.q}}</div>
                         <div>{{scale2jp(chi)}}</div>
                         <div v-if="chi.point > 0">{{chi.point}}点</div>
@@ -128,10 +128,10 @@
               <div class="edi-label">配点</div>
               <input class="edi-input uk-input" type="number" v-model="s.point" />
             </div>
-            <div class="edi-area" v-if="s.children.length == 0">
+            <!-- <div class="edi-area" v-if="s.children.length == 0">
               <div class="edi-label">正解</div>
               <input class="edi-input uk-input" v-model="s.answer" />
-            </div>
+            </div> -->
             <div class="edi-area" v-if="s.children.length == 0">
               <div class="edi-label">採点時の注意（採点基準など）</div>
               <textarea class="edi-input uk-input" v-model="s.scoring_desc"></textarea>

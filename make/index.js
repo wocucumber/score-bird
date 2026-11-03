@@ -45,9 +45,9 @@ const app = Vue.createApp({
         this.q.splice(i, 1);
     },
     getNewSmallTemplete(sec) {
-      const smalls = this.getSmallQuestions(sec);
+      const smalls = sec.items;
       return {
-        q: smalls.reduce((prev, e) => Math.max(Number(e.q), prev), 0) + 1,
+        q: this.getSmallQuestions(sec).reduce((prev, e) => Math.max(Number(e.q), prev), 0) + 1,
         scale: "m",
         start: "",
         end: "",
