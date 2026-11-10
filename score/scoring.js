@@ -118,7 +118,6 @@ class Sheet {
         this.isReady = true;
         resolve();
 
-        // ↓消す？
         URL.revokeObjectURL(url);
       });
       img.src = url;
